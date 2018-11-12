@@ -1,0 +1,20 @@
+main
+	__CC2DW
+	PIN_Initialize
+	OSCILLATOR_Initialize
+	SPI_Initialize
+	TMR2_Initialize
+	PWM3_Initialize
+	CLC1_Initialize
+	UART1_Init
+		UART1_MapDefaultPins
+			PPS_Mapping
+				_PPS_Mapping
+					Unlock_IOLOCK
+					Lock_IOLOCK
+		UART_Set_Active
+		UART1_Init_Static
+interrupt
+	RxTask
+		UART_Read
+			____DoIFC
