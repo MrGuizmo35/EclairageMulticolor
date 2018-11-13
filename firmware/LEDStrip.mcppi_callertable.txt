@@ -14,7 +14,10 @@ main
 					Lock_IOLOCK
 		UART_Set_Active
 		UART1_Init_Static
+	UART1_Write_Text
+		UART1_Write
 interrupt
 	RxTask
 		UART_Read
 			____DoIFC
+		memcpy

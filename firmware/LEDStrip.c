@@ -1,5 +1,8 @@
 #include "LEDStrip.h"
 
+bool setLedsColorNow = false;
+uint8_t leds_color[180];
+
 void interrupt(void){
         if(PEIE_bit == 1){
                 if(RCIE_bit == 1 && RCIF_bit == 1){
@@ -20,16 +23,34 @@ void main(void) {
         CLC1_Initialize();
 
         UART1_Init(115200);
-
+        RCIF_bit = 0;
+        RCIE_bit = 1;
         GIE_bit = 1;
         PEIE_bit = 1;
+
+        while(1){
+                if(setLedsColorNow == true){
+                        uint8_t pixelIndex = 0;
+                        setLedsColorNow = false;
+                        for(pixelIndex = 0; pixelIndex < 180; pixelIndex++){
+                                uint8_t dummy;
+                                SSP1BUF = leds_color[pixelIndex];
+                                while(BF_bit == 0);
+                                dummy = SSP1BUF;
+                        }
+                }
+        }
 }
 
 void RxTask(void){
         static RX_STATE_t state = RX_STATE_START_1;
         static uint8_t dataLength = 0;
+        static uint8_t messageBuffer[200];
+        static uint8_t cmdBuffer = 0;
+        static uint8_t dataIndex = 0;
+        static uint8_t checksum = 0;
         char c = UART_Read();
-        switch (state){
+        switch(state){
                 case RX_STATE_START_1:{
                         if(c == 0xDE){
                                 state = RX_STATE_START_2;
@@ -38,6 +59,7 @@ void RxTask(void){
                 }
                 case RX_STATE_START_2:{
                         if(c == 0xAD){
+                                checksum = 0;
                                 state = RX_STATE_LENGTH;
                         }
                         else if(c != 0xDE){
@@ -47,14 +69,32 @@ void RxTask(void){
                 }
                 case RX_STATE_LENGTH:{
                         dataLength = c;
+                        checksum ^= c;
                         state = RX_STATE_CMD;
                         break;
                 }
                 case RX_STATE_CMD:{
-                        /*@TODO*/
+                        cmdBuffer = c;
+                        checksum ^= c;
+                        dataIndex = 0;
+                        state = RX_STATE_DATA;
                         break;
                 }
                 case RX_STATE_DATA:{
+                        checksum ^= c;
+                        messageBuffer[dataIndex++] = c;
+                        if(dataIndex  >= dataLength){
+                                state = RX_STATE_CHECKSUM;
+                        }
+                        break;
+                }
+                case RX_STATE_CHECKSUM:{
+                        if(c == checksum){
+                                state = RX_STATE_STOP_1;
+                        }
+                        else{
+                                state = RX_STATE_START_1;
+                        }
                         break;
                 }
                 case RX_STATE_STOP_1:{
@@ -67,6 +107,18 @@ void RxTask(void){
                         break;
                 }
                 case RX_STATE_STOP_2:{
+                        if(c == 0xEF){
+                                switch(cmdBuffer){
+                                        case CMD_SET_LEDS:{
+                                                memcpy(messageBuffer,leds_color,180);
+                                                setLedsColorNow = true;
+                                                break;
+                                        }
+                                        default:{
+                                                break;
+                                        }
+                                }
+                        }
                         state = RX_STATE_START_1;
                         break;
                 }
@@ -77,11 +129,10 @@ void PIN_Initialize(void){
         ANSELA = 0;
         ANSELB = 0;
         ANSELC = 0;
-
         TRISB5_bit = 1;
-        RXPPS = 0x0D;   //RB5->EUSART:RX
-        RB7PPS = 0x06;   //RB7->EUSART:TX
-        RA2PPS = 0x04;   //RA2->CLC1:CLC1OUT
+        RXPPS = 0x0D;//RB5->EUSART:RX
+        RB7PPS = 0x06;//RB7->EUSART:TX
+        RA2PPS = 0x04;//RA2->CLC1:CLC1OUT
 }
 
 void OSCILLATOR_Initialize(void){
@@ -148,7 +199,6 @@ void TMR2_Initialize(void){
 }
 
 void PWM3_Initialize(void){
-        // Set the PWM to the options selected in the PIC10 / PIC12 / PIC16 / PIC18 MCUs.
         // PWM3POL active_hi; PWM3EN enabled;
         PWM3CON = 0x80;
         // DC 6;

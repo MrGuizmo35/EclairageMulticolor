@@ -2,6 +2,9 @@
 #define __LEDSTRIP_H__
 
 #include <stdint.h>
+#include <stdbool.h>
+
+#define CMD_SET_LEDS 10
 
 typedef enum{
         RX_STATE_START_1,

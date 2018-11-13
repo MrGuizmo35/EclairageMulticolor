@@ -42,7 +42,12 @@ typedef unsigned int uintptr_t;
 
 typedef signed long int intmax_t;
 typedef unsigned long int uintmax_t;
-#line 6 "c:/users/mrgui/documents/projets/eclairagemulticolor/firmware/ledstrip.h"
+#line 1 "c:/users/mrgui/documents/mikroelektronika/mikroc pro for pic/include/stdbool.h"
+
+
+
+ typedef char _Bool;
+#line 9 "c:/users/mrgui/documents/projets/eclairagemulticolor/firmware/ledstrip.h"
 typedef enum{
  RX_STATE_START_1,
  RX_STATE_START_2,
@@ -62,7 +67,8 @@ void SPI_Initialize(void);
 void TMR2_Initialize(void);
 void PWM3_Initialize(void);
 #line 3 "C:/Users/mrgui/Documents/projets/EclairageMulticolor/firmware/LEDStrip.c"
-uint8_t ledColor[180];
+ _Bool  setLedsColorNow =  0 ;
+uint8_t leds_color[180];
 
 void interrupt(void){
  if(PEIE_bit == 1){
@@ -84,14 +90,33 @@ void main(void) {
  CLC1_Initialize();
 
  UART1_Init(115200);
-
+ RCIF_bit = 0;
+ RCIE_bit = 1;
  GIE_bit = 1;
  PEIE_bit = 1;
+
+ while(1){
+ if(setLedsColorNow ==  1 ){
+ uint8_t pixelIndex = 0;
+ setLedsColorNow =  0 ;
+ for(pixelIndex = 0; pixelIndex < 180; pixelIndex++){
+ uint8_t dummy;
+ SSP1BUF = leds_color[pixelIndex];
+ while(BF_bit == 0);
+ dummy = SSP1BUF;
+ }
+ UART1_Write_Text("OK\r\n");
+ }
+ }
 }
 
 void RxTask(void){
  static RX_STATE_t state = RX_STATE_START_1;
  static uint8_t dataLength = 0;
+ static uint8_t messageBuffer[200];
+ static uint8_t cmdBuffer = 0;
+ static uint8_t dataIndex = 0;
+ static uint8_t checksum = 0;
  char c = UART_Read();
  switch (state){
  case RX_STATE_START_1:{
@@ -102,6 +127,7 @@ void RxTask(void){
  }
  case RX_STATE_START_2:{
  if(c == 0xAD){
+ checksum = 0;
  state = RX_STATE_LENGTH;
  }
  else if(c != 0xDE){
@@ -111,14 +137,32 @@ void RxTask(void){
  }
  case RX_STATE_LENGTH:{
  dataLength = c;
+ checksum ^= c;
  state = RX_STATE_CMD;
  break;
  }
  case RX_STATE_CMD:{
-
+ cmdBuffer = c;
+ checksum ^= c;
+ dataIndex = 0;
+ state = RX_STATE_DATA;
  break;
  }
  case RX_STATE_DATA:{
+ checksum ^= c;
+ messageBuffer[dataIndex++] = c;
+ if(dataIndex >= dataLength){
+ state = RX_STATE_CHECKSUM;
+ }
+ break;
+ }
+ case RX_STATE_CHECKSUM:{
+ if(c == checksum){
+ state = RX_STATE_STOP_1;
+ }
+ else{
+ state = RX_STATE_START_1;
+ }
  break;
  }
  case RX_STATE_STOP_1:{
@@ -131,6 +175,18 @@ void RxTask(void){
  break;
  }
  case RX_STATE_STOP_2:{
+ if(c == 0xEF){
+ switch(cmdBuffer){
+ case  10 :{
+ memcpy(messageBuffer,leds_color,180);
+ setLedsColorNow =  1 ;
+ break;
+ }
+ default:{
+ break;
+ }
+ }
+ }
  state = RX_STATE_START_1;
  break;
  }
@@ -141,7 +197,6 @@ void PIN_Initialize(void){
  ANSELA = 0;
  ANSELB = 0;
  ANSELC = 0;
-
  TRISB5_bit = 1;
  RXPPS = 0x0D;
  RB7PPS = 0x06;
@@ -212,7 +267,6 @@ void TMR2_Initialize(void){
 }
 
 void PWM3_Initialize(void){
-
 
  PWM3CON = 0x80;
 

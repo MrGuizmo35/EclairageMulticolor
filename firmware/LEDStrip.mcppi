@@ -45,7 +45,8 @@ Count=0
 [Useses]
 File0=UART_Remappable
 File1=Peripheral_Pin_Select
-Count=2
+File2=C_String
+Count=3
 [EXPANDED_NODES]
 0=LEDStrip.mcppi
 Count=1
