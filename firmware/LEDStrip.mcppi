@@ -46,12 +46,14 @@ Count=0
 File0=UART_Remappable
 File1=Peripheral_Pin_Select
 File2=C_String
-Count=3
+File3=One_Wire
+Count=4
 [EXPANDED_NODES]
 0=LEDStrip.mcppi
 Count=1
 [LIB_EXPANDED_NODES]
 0=mikroE Libraries
 1=System Libraries
+245=One_Wire
 466=UART_Remappable
-Count=3
+Count=4

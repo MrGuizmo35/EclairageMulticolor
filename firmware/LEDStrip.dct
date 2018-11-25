@@ -2541,6 +2541,9 @@ ovrc
 ovrc_bit
 ovrd
 ovrd_bit
+ow_read
+ow_reset
+ow_write
 p1m1
 p1m1_bit
 p2m1

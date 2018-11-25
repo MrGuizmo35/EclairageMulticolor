@@ -14,6 +14,8 @@ main
 					Lock_IOLOCK
 		UART_Set_Active
 		UART1_Init_Static
+	Div_16x16_S
+		Div_16x16_S_L
 	UART1_Write_Text
 		UART1_Write
 interrupt

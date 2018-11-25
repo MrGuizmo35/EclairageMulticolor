@@ -82,6 +82,8 @@ void interrupt(void){
 }
 
 void main(void) {
+ int i = 0;
+
  PIN_Initialize();
  OSCILLATOR_Initialize();
  SPI_Initialize();
@@ -94,6 +96,17 @@ void main(void) {
  RCIE_bit = 1;
  GIE_bit = 1;
  PEIE_bit = 1;
+
+ for(i = 0; i< 180; i++){
+ leds_color[i] = (i%2 == 0 ? 16 : 0);
+ }
+
+ for(i = 0; i < 180; i++){
+ uint8_t dummy;
+ SSP1BUF = leds_color[i];
+ while(BF_bit == 0);
+ dummy = SSP1BUF;
+ }
 
  while(1){
  if(setLedsColorNow ==  1 ){
@@ -118,7 +131,7 @@ void RxTask(void){
  static uint8_t dataIndex = 0;
  static uint8_t checksum = 0;
  char c = UART_Read();
- switch (state){
+ switch(state){
  case RX_STATE_START_1:{
  if(c == 0xDE){
  state = RX_STATE_START_2;
@@ -178,7 +191,7 @@ void RxTask(void){
  if(c == 0xEF){
  switch(cmdBuffer){
  case  10 :{
- memcpy(messageBuffer,leds_color,180);
+ memcpy(leds_color,messageBuffer,180);
  setLedsColorNow =  1 ;
  break;
  }
@@ -201,6 +214,7 @@ void PIN_Initialize(void){
  RXPPS = 0x0D;
  RB7PPS = 0x06;
  RA2PPS = 0x04;
+ TRISA2_bit = 0;
 }
 
 void OSCILLATOR_Initialize(void){
@@ -220,7 +234,7 @@ void SPI_Initialize(void){
 
  SSP1STAT = 0x00;
 
- SSP1CON1 = 0x20;
+ SSP1CON1 = 0x23;
 
  SSP1ADD = 0x00;
 }
@@ -257,7 +271,7 @@ void TMR2_Initialize(void){
 
  T2RST = 0x00;
 
- T2PR = 0x13;
+ T2PR = 5;
 
  T2TMR = 0x00;
 
@@ -270,7 +284,7 @@ void PWM3_Initialize(void){
 
  PWM3CON = 0x80;
 
- PWM3DCH = 0x06;
+ PWM3DCH = 0x03;
 
- PWM3DCL = 0x40;
+ PWM3DCL = 0x00;
  }

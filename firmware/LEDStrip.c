@@ -15,6 +15,8 @@ void interrupt(void){
 }
 
 void main(void) {
+        int i = 0;
+
         PIN_Initialize();
         OSCILLATOR_Initialize();
         SPI_Initialize();
@@ -28,6 +30,17 @@ void main(void) {
         GIE_bit = 1;
         PEIE_bit = 1;
 
+        for(i = 0; i< 180; i++){
+                leds_color[i] = (i%2 == 0 ? 16 : 0);
+        }
+
+        for(i = 0; i < 180; i++){
+                uint8_t dummy;
+                SSP1BUF = leds_color[i];
+                while(BF_bit == 0);
+                dummy = SSP1BUF;
+        }
+
         while(1){
                 if(setLedsColorNow == true){
                         uint8_t pixelIndex = 0;
@@ -38,6 +51,7 @@ void main(void) {
                                 while(BF_bit == 0);
                                 dummy = SSP1BUF;
                         }
+                        UART1_Write_Text("OK\r\n");
                 }
         }
 }
@@ -110,7 +124,7 @@ void RxTask(void){
                         if(c == 0xEF){
                                 switch(cmdBuffer){
                                         case CMD_SET_LEDS:{
-                                                memcpy(messageBuffer,leds_color,180);
+                                                memcpy(leds_color,messageBuffer,180);
                                                 setLedsColorNow = true;
                                                 break;
                                         }
@@ -133,6 +147,7 @@ void PIN_Initialize(void){
         RXPPS = 0x0D;//RB5->EUSART:RX
         RB7PPS = 0x06;//RB7->EUSART:TX
         RA2PPS = 0x04;//RA2->CLC1:CLC1OUT
+        TRISA2_bit = 0;
 }
 
 void OSCILLATOR_Initialize(void){
@@ -151,8 +166,8 @@ void SPI_Initialize(void){
         // Set the SPI module to the options selected in the User Interface
         // R_nW write_noTX; P stopbit_notdetected; S startbit_notdetected; BF RCinprocess_TXcomplete; SMP Middle; UA dontupdate; CKE Idle to Active; D_nA lastbyte_address;
         SSP1STAT = 0x00;
-        // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM FOSC/4; SSPOV no_overflow;
-        SSP1CON1 = 0x20;
+        // SSPEN enabled; WCOL no_collision; CKP Idle:Low, Active:High; SSPM TMR2; SSPOV no_overflow;
+        SSP1CON1 = 0x23;
         // SSP1ADD 0;
         SSP1ADD = 0x00;
 }
@@ -189,7 +204,7 @@ void TMR2_Initialize(void){
         // T2RSEL T2IN;
         T2RST = 0x00;
         // T2PR 19;
-        T2PR = 0x13;
+        T2PR = 5;
         // TMR2 0;
         T2TMR = 0x00;
         // Clearing IF flag.
@@ -202,7 +217,7 @@ void PWM3_Initialize(void){
         // PWM3POL active_hi; PWM3EN enabled;
         PWM3CON = 0x80;
         // DC 6;
-        PWM3DCH = 0x06;
+        PWM3DCH = 0x03;
         // DC 1;
-        PWM3DCL = 0x40;
+        PWM3DCL = 0x00;
  }

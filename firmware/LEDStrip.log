@@ -1,13 +1,14 @@
 0	1	mikroCPIC1618.exe -MSF -DBG -pP16F1618 -DL -O11111115 -fo32 -N"C:\Users\mrgui\Documents\projets\EclairageMulticolor\firmware\LEDStrip.mcppi" -SP"C:\Users\mrgui\Documents\Mikroelektronika\mikroC PRO for PIC\Defs\" -SP"C:\Users\mrgui\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16_Enh\" -SP"C:\Users\mrgui\Documents\projets\EclairageMulticolor\firmware\" -IP"C:\Users\mrgui\Documents\Mikroelektronika\mikroC PRO for PIC\Uses\P16_Enh\" -IP"C:\Users\mrgui\Documents\projets\EclairageMulticolor\firmware\" "LEDStrip.c" "__Lib_Math.mcl" "__Lib_MathDouble.mcl" "__Lib_System.mcl" "__Lib_Delays.mcl" "__Lib_CString.mcl" "__Lib_PPS_1618_19.mcl" "__Lib_UART_Remappable.mcl"	 
 hint: 0	1139	Available RAM: 496 [bytes], Available ROM: 4096 [bytes]	 
 diagnostics: 0	122	Compilation Started	stdint.h
-warning: 25	1509	Generated baud rate is 115942 bps (error = 0.64 percent)	LEDStrip.c
-diagnostics: 209	123	Compiled Successfully	LEDStrip.c
-hint: 36	1164	Variable 'dummy' has been eliminated by optimizer	LEDStrip.c
-diagnostics: 0	127	All files Compiled in 265 ms	 
-hint: 0	1144	Used RAM (bytes): 443 (89%)  Free RAM (bytes): 53 (11%)	Used RAM (bytes): 443 (89%)  Free RAM (bytes): 53 (11%)
-hint: 0	1144	Used ROM (program words): 1347 (33%)  Free ROM (program words): 2749 (67%)	Used ROM (program words): 1347 (33%)  Free ROM (program words): 2749 (67%)
+warning: 27	1509	Generated baud rate is 115942 bps (error = 0.64 percent)	LEDStrip.c
+diagnostics: 223	123	Compiled Successfully	LEDStrip.c
+hint: 38	1164	Variable 'dummy' has been eliminated by optimizer	LEDStrip.c
+hint: 49	1164	Variable 'dummy' has been eliminated by optimizer	LEDStrip.c
+diagnostics: 0	127	All files Compiled in 109 ms	 
+hint: 0	1144	Used RAM (bytes): 448 (90%)  Free RAM (bytes): 48 (10%)	Used RAM (bytes): 448 (90%)  Free RAM (bytes): 48 (10%)
+hint: 0	1144	Used ROM (program words): 1604 (39%)  Free ROM (program words): 2492 (61%)	Used ROM (program words): 1604 (39%)  Free ROM (program words): 2492 (61%)
 diagnostics: 0	125	Project Linked Successfully	LEDStrip.mcppi
-diagnostics: 0	128	Linked in 219 ms	 
-diagnostics: 0	129	Project 'LEDStrip.mcppi' completed: 594 ms	 
-diagnostics: 0	103	Finished successfully: 13 nov. 2018, 07:29:52	LEDStrip.mcppi
+diagnostics: 0	128	Linked in 110 ms	 
+diagnostics: 0	129	Project 'LEDStrip.mcppi' completed: 297 ms	 
+diagnostics: 0	103	Finished successfully: 17 nov. 2018, 11:12:42	LEDStrip.mcppi
