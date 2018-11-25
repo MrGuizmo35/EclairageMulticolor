@@ -57,7 +57,7 @@ class LedStripControler(Thread):
         else:
             for i in range(self.nbLeds):
                 self.leds[i].saturation = 1
-                self.leds[i].luminance = 0.25
+                self.leds[i].luminance = 0.2
                 self.leds[i].hue = self.currentHue
                 self.currentHue = self.currentHue + 1.0/(self.nbLeds + 1)
                 if self.currentHue > 1:
@@ -73,17 +73,18 @@ class LedStripControler(Thread):
 
     def autoMode(self):
         t = time.localtime().tm_hour
-        for i in range(self.nbLeds):
-            self.leds[i].saturation = 1
-            self.leds[i].luminance = 0.25
-            self.leds[i].hue = self.currentHue
-        self.currentHue = self.currentHue + 0.1
-        if self.currentHue > 1:
-            self.currentHue = 0
-        self.updateLedColors()
         if(t >= 21):
             with self.modeLock:
                 self.mode = "off"
+        else:
+            for i in range(self.nbLeds):
+                self.leds[i].saturation = 1
+                self.leds[i].luminance = 0.2
+                self.leds[i].hue = self.currentHue
+                self.currentHue = self.currentHue + 1.0/(self.nbLeds + 1)
+                if self.currentHue > 1:
+                    self.currentHue = 0
+            self.UpdateLedColors()
 
     def UpdateLedColors(self):
         m = [0xDE, 0xAD]
